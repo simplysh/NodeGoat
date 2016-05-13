@@ -5,6 +5,10 @@ var ContributionsHandler = require("./contributions");
 var AllocationsHandler = require("./allocations");
 var ErrorHandler = require("./error").errorHandler;
 
+var redirect = {
+    khan: "https://www.khanacademy.org/economics-finance-domain/core-finance/investment-vehicles-tutorial/ira-401ks/v/traditional-iras"
+}
+
 var exports = function(app, db) {
 
     "use strict";
@@ -47,12 +51,9 @@ var exports = function(app, db) {
     app.post("/contributions", isLoggedIn, contributionsHandler.handleContributionsUpdate);
 
     // Benefits Page
-    app.get("/benefits", isLoggedIn, benefitsHandler.displayBenefits);
-    app.post("/benefits", isLoggedIn, benefitsHandler.updateBenefits);
-    /* Fix for A7 - checks user role to implement  Function Level Access Control
-     app.get("/benefits", isLoggedIn, isAdmin, benefitsHandler.displayBenefits);
-     app.post("/benefits", isLoggedIn, isAdmin, benefitsHandler.updateBenefits);
-     */
+    app.get("/benefits", isLoggedIn, isAdmin, benefitsHandler.displayBenefits);
+    app.post("/benefits", isLoggedIn, isAdmin, benefitsHandler.updateBenefits);
+
 
     // Allocations Page
     app.get("/allocations/:userId", isLoggedIn, allocationsHandler.displayAllocations);
@@ -60,7 +61,9 @@ var exports = function(app, db) {
     // Handle redirect for learning resources link
     app.get("/learn", isLoggedIn, function(req, res, next) {
         // Insecure way to handle redirects by taking redirect url from query string
-        return res.redirect(req.query.url);
+        if(redirect[req.query.url]) {
+            return res.redirect(redirect[req.query.url]);
+        }
     });
 
     // Handle redirect for learning resources link
